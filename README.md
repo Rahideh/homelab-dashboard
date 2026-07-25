@@ -61,7 +61,7 @@ homelab-dashboard/
 │   ├── cisco_agent.py    + cisco_config.example.json
 │   ├── hpe_agent.py      + hpe_config.example.json
 │   ├── requirements.txt
-│   └── README.md         # full setup guide for each agent
+│   └── agent-README-en.md         # full setup guide for each agent
 ├── frontend/             # web dashboard
 │   ├── index.html
 │   ├── style.css
@@ -72,6 +72,7 @@ homelab-dashboard/
 │   ├── dashboard.png
 ├── frontend_auth_helper/  # temporary tools for setting the dashboard password
 ├── Translation/
+│   ├── agent-README-fa.md # Persian version of agent-README-en
 │   └── README-fa.md       # Persian version of this README
 └── .gitignore
 ```
@@ -90,7 +91,7 @@ homelab-dashboard/
 4. Send a test request to `ingest.php` with curl/Postman/PowerShell (examples below)
 
 ### Phases 2-4: Agents (MikroTik / Cisco / HPE)
-Full setup instructions for all three (installing Python, filling in config, enabling the API/SNMP/Redfish on the device itself, and scheduling with Windows Task Scheduler) are in [`agent/README.md`](./agent/README.md).
+Full setup instructions for all three (installing Python, filling in config, enabling the API/SNMP/Redfish on the device itself, and scheduling with Windows Task Scheduler) are in [`agent/agent-README-en.md`](./agent/agent-README-en.md).
 
 ### Phase 5: Frontend
 1. Upload the `frontend/` folder next to `backend/`
