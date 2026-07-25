@@ -1,4 +1,4 @@
-**English | [فارسی](../Translation/agent-README.md)**
+**English | [فارسی](../Translation/agent-README-fa.md)**
 
 # MikroTik Agent — Phase 2
 
