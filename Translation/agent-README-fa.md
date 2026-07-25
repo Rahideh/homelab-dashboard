@@ -1,4 +1,4 @@
-**[English](../agent/agent-README-en.md) | فارسی**
+**[English](../agent/README.md) | فارسی**
 
 # MikroTik Agent — فاز ۲
 
