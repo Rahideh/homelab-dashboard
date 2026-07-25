@@ -91,7 +91,7 @@ homelab-dashboard/
 4. Send a test request to `ingest.php` with curl/Postman/PowerShell (examples below)
 
 ### Phases 2-4: Agents (MikroTik / Cisco / HPE)
-Full setup instructions for all three (installing Python, filling in config, enabling the API/SNMP/Redfish on the device itself, and scheduling with Windows Task Scheduler) are in [`agent/agent-README-en.md`](./agent/agent-README-en.md).
+Full setup instructions for all three (installing Python, filling in config, enabling the API/SNMP/Redfish on the device itself, and scheduling with Windows Task Scheduler) are in [`agent/README.md`](./agent/README.md).
 
 ### Phase 5: Frontend
 1. Upload the `frontend/` folder next to `backend/`
