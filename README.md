@@ -25,7 +25,7 @@ A network and server monitoring dashboard for homelabs — built to run on **sha
 ## 📸 Preview
 
 
-[Dashboard](./screenshots/dashboard.png)
+![homelab-dashboard](screenshots/dashboard.png)
 
 
 ## 🏗️ Architecture
