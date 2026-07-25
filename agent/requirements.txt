@@ -1,0 +1,3 @@
+routeros_api>=0.21.0
+pysnmp>=7.1.0
+requests>=2.31.0

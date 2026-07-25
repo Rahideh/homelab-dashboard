@@ -1,0 +1,9 @@
+AuthType Basic
+AuthName "Homelab Dashboard"
+AuthUserFile /FULL/SERVER/PATH/TO/frontend/.htpasswd
+Require valid-user
+
+# جلوگیری از دانلود مستقیم فایل .htpasswd (احتیاط اضافه)
+<Files ".htpasswd">
+    Require all denied
+</Files>

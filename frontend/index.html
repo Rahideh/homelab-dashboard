@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homelab Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-text">Homelab<span class="brand-accent">.dashboard</span></span>
+    </div>
+    <div class="topbar-status" id="topbar-status">در حال بارگذاری...</div>
+  </div>
+</div>
+
+<main class="container">
+
+  <section class="summary-row" id="summary-row">
+    <!-- کارت‌های خلاصه با جاوااسکریپت پر می‌شن -->
+  </section>
+
+  <section>
+    <h2 class="section-title">دستگاه‌ها</h2>
+    <div class="device-grid" id="device-grid">
+      <div class="empty-state">در حال دریافت اطلاعات دستگاه‌ها...</div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">آخرین هشدارها</h2>
+    <div class="alerts-panel" id="alerts-panel">
+      <div class="empty-state">در حال دریافت هشدارها...</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal جزئیات دستگاه -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">جزئیات دستگاه</h3>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="chart-wrap">
+        <canvas id="cpu-temp-chart"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="traffic-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
