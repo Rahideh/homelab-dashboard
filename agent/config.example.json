@@ -1,0 +1,19 @@
+{
+  "mikrotik": {
+    "host": "10.0.0.1",
+    "username": "admin",
+    "password": "your-mikrotik-password",
+    "api_port": 8728,
+    "use_ssl": false
+  },
+  "dashboard": {
+    "ingest_url": "https://yourdomain.com/dashboard/ingest.php",
+    "api_key": "your-dashboard-api-key",
+    "device_key": "mikrotik-main",
+    "display_name": "MikroTik hEX",
+    "device_type": "mikrotik"
+  },
+  "options": {
+    "traffic_interface": null
+  }
+}

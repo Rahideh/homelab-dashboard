@@ -1,0 +1,16 @@
+{
+  "cisco": {
+    "host": "10.0.0.2",
+    "community": "your-ro-community-string",
+    "port": 161,
+    "timeout": 5,
+    "retries": 2
+  },
+  "dashboard": {
+    "ingest_url": "https://yourdomain.com/dashboard/ingest.php",
+    "api_key": "your-dashboard-api-key",
+    "device_key": "cisco-switch-main",
+    "display_name": "Cisco Catalyst 3560",
+    "device_type": "cisco"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "hpe": {
+    "ilo_url": "https://10.0.0.5",
+    "username": "your-ilo-username",
+    "password": "your-ilo-password",
+    "verify_ssl": false
+  },
+  "dashboard": {
+    "ingest_url": "https://yourdomain.com/dashboard/ingest.php",
+    "api_key": "your-dashboard-api-key",
+    "device_key": "hpe-server-1",
+    "display_name": "HPE ProLiant",
+    "device_type": "hpe_server"
+  }
+}
