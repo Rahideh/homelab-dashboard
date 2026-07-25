@@ -1,0 +1,21 @@
+# ==== فایل‌های حساس (شامل پسورد/کلید واقعی) — هرگز نباید commit بشن ====
+backend/config.php
+frontend/.htpasswd
+frontend/.htaccess
+agent/config.json
+agent/cisco_config.json
+agent/hpe_config.json
+
+# ==== فایل‌های تولیدشده در زمان اجرا ====
+backend/database.sqlite
+backend/database.sqlite-journal
+agent/*.log
+agent/__pycache__/
+agent/**/__pycache__/
+*.pyc
+
+# ==== فایل‌های سیستم‌عامل/ادیتور ====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
