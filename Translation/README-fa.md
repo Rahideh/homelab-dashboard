@@ -2,111 +2,102 @@
 
 # Homelab Monitoring Dashboard 🖥️📡
 
-داشبورد مانیتورینگ شبکه و سرورهای هوم‌لب — طراحی‌شده برای اجرا روی **هاست اشتراکی PHP** (بدون نیاز به VPS یا دسترسی root)، برای مانیتور کردن دستگاه‌های **MikroTik**، **Cisco**، و سرورهای **HPE** به‌صورت یک‌جا.
+داشبورد ساده‌ی مانیتورینگ برای هوم‌لب، با اجرا روی **هاست اشتراکی PHP**.
+بدون VPS، بدون root access، و بدون نیاز به زیرساخت اضافه.
+برای مانیتور کردن **MikroTik**، **Cisco** و سرورهای **HPE** در یک جا.
 
-> ساخته‌شده توسط [Rahideh](https://trustit.ir) برای پروژه‌ی هوم‌لب شخصی — با کمک [Claude](https://claude.ai) (دستیار هوش مصنوعی Anthropic) در تمام مراحل کدنویسی و تست 🤖
+## Features
 
----
+* نمایش وضعیت زنده‌ی هر دستگاه
+* CPU / دما / ترافیک
+* نمودار تاریخچه
+* ثبت هشدارها برای قطعی، وصلی و دمای بالا
+* هشدار دمای قابل تنظیم برای هر دستگاه
+* معماری push-based برای شبکه‌های پشت NAT
+* Agent جدا برای:
 
-## ✨ ویژگی‌ها
+  * MikroTik با RouterOS API
+  * Cisco با SNMP
+  * HPE با Redfish API (iLO)
+* محافظت داشبورد با HTTP Basic Auth
+* رابط کاربری تیره و ساده
 
-- 📊 داشبورد وب زنده با کارت‌های وضعیت هر دستگاه (آنلاین/آفلاین، CPU، دما، ترافیک)
-- 📈 گراف تاریخچه‌ی CPU/دما/ترافیک برای هر دستگاه (با کلیک روی کارت)
-- 🔔 لاگ خودکار هشدارها (قطعی، وصلی، دمای بالا)
-- 🌡️ هشدار دمای قابل‌تنظیم به‌ازای هر دستگاه
-- 🔌 معماری push-based — مناسب هاست اشتراکی که به شبکه‌ی داخلی هوم‌لب دسترسی نداره
-- 🐍 Agent های پایتونی جدا برای هر نوع دستگاه:
-  - **MikroTik** از طریق RouterOS API
-  - **Cisco** از طریق SNMP
-  - **HPE** از طریق Redfish API (iLO)
-- 🔒 محافظت از داشبورد با HTTP Basic Auth (بدون نیاز به سیستم لاگین جداگانه)
-- 🎨 ظاهر تیره‌ی ترمینالی، فونت Vazirmatn + JetBrains Mono، راست‌به‌چپ
+## Preview
 
-## 📸 پیش‌نمایش
-
-<!-- اگه اسکرین‌شات‌ها رو کنار همین README گذاشتی، این خط‌ها رو از کامنت دربیار:
+<!-- اگر خواستی، اسکرین‌شات را اینجا فعال کن:
 ![Dashboard](./screenshots/dashboard.png)
-![Device history chart](./screenshots/chart-modal.png)
 -->
 
-## 🏗️ معماری
+## Architecture
 
-چون هاست اشتراکی به شبکه‌ی داخلی هوم‌لب (پشت NAT) دسترسی نداره، این پروژه معماری **push-based** داره:
+هاست اشتراکی به شبکه‌ی داخلی هوم‌لب دسترسی مستقیم ندارد، پس جریان کار این‌طوری است:
 
-```
+```text
 [MikroTik]  ─┐
-[Cisco]      ├─→  Agent های پایتونی (روی یه دستگاه همیشه‌روشن توی هوم‌لب)
-[HPE/iLO]   ─┘         │
-                        │  POST دوره‌ای (هر ۱-۵ دقیقه، با Task Scheduler)
-                        ▼
-              backend/ingest.php  (روی هاست اشتراکی، PHP + SQLite)
-                        │
-                        ▼
-              backend/api_*.php  ←── frontend/ (داشبورد وب)
+[Cisco]      ├─→  Python agents روی یک دستگاه همیشه‌روشن در هوم‌لب
+[HPE/iLO]   ─┘
+                     │
+                     │  POST دوره‌ای
+                     ▼
+            backend/ingest.php  (PHP + SQLite)
+                     │
+                     ▼
+            backend/api_*.php  ←── frontend/
 ```
 
-## 📁 ساختار پروژه
+## Structure
 
-```
+```text
 homelab-dashboard/
-├── backend/              # API های PHP + دیتابیس SQLite
-│   ├── config.example.php
-│   ├── db_init.php
-│   ├── ingest.php        # دریافت داده از Agent ها
-│   ├── api_devices.php   # وضعیت فعلی دستگاه‌ها
-│   ├── api_history.php   # تاریخچه (برای گراف)
-│   └── api_alerts.php    # لاگ هشدارها
-├── agent/                # اسکریپت‌های پایتونی جمع‌آوری داده
-│   ├── common.py
-│   ├── mikrotik_agent.py + config.example.json
-│   ├── cisco_agent.py    + cisco_config.example.json
-│   ├── hpe_agent.py      + hpe_config.example.json
-│   ├── requirements.txt
-│   └── README.md         # راهنمای کامل نصب هر Agent
-├── frontend/              # داشبورد وب
-│   ├── index.html
-│   ├── style.css
-│   ├── script.js
-│   ├── config.js
-│   └── .htaccess.example # محافظت با پسورد (اختیاری)
-├── frontend_auth_helper/  # ابزارهای موقت ساخت پسورد داشبورد
+├── backend/
+├── agent/
+├── frontend/
+├── screenshots/
+├── frontend_auth_helper/
 └── .gitignore
 ```
 
-## 🚀 راهنمای دیپلوی (هاست اشتراکی)
+## Deploy
 
-### پیش‌نیاز
-- هاست اشتراکی با PHP 7.4+ و پشتیبانی از SQLite (`pdo_sqlite`)
-- یه دستگاه همیشه‌روشن توی هوم‌لب (یا حتی یه PC ویندوزی که بیشتر وقت‌ها روشنه) برای اجرای Agent ها
-- پایتون ۳.۹+ روی همون دستگاه، برای Agent ها
+### Requirements
 
-### فاز ۱: بک‌اند
-۱. پوشه‌ی `backend/` رو آپلود کن (مثلاً به `public_html/dashboard/backend`)
-۲. از `config.example.php` یه کپی بگیر به اسم `config.php` و کلید API رو با یه رشته‌ی تصادفی امن پر کن
-۳. یک‌بار `db_init.php` رو از مرورگر اجرا کن، بعد پاکش کن یا rename کن
-۴. با curl/Postman/PowerShell یه درخواست تست به `ingest.php` بزن (نمونه‌ها توی همین README پایین‌تر)
+* PHP 7.4+ با SQLite (`pdo_sqlite`)
+* یک دستگاه همیشه‌روشن برای اجرای Agentها
+* Python 3.9+ روی همان دستگاه
 
-### فاز ۲-۴: Agent ها (MikroTik / Cisco / HPE)
-راهنمای کامل هر سه (نصب پایتون، پر کردن config، فعال‌سازی API/SNMP/Redfish روی خود دستگاه، و زمان‌بندی با Task Scheduler ویندوز) توی [`agent/README.md`](../agent/README.md) هست.
+### 1) Backend
 
-### فاز ۵: فرانت‌اند
-۱. پوشه‌ی `frontend/` رو کنار `backend/` آپلود کن
-۲. اگه ساختار پوشه‌بندیت فرق داره، `frontend/config.js` رو با آدرس درست `backend` تنظیم کن
-۳. برو به `https://yourdomain.com/dashboard/frontend/index.html`
+1. پوشه‌ی `backend/` را آپلود کن
+2. `config.example.php` را به `config.php` کپی کن و API key را تنظیم کن
+3. `db_init.php` را یک‌بار اجرا کن و بعد حذف/rename کن
+4. یک درخواست تست به `ingest.php` بفرست
 
-### (اختیاری ولی پیشنهادی) محافظت از داشبورد با پسورد
-۱. `frontend_auth_helper/generate_hash.php` رو **در یه مسیر خارج از frontend** (چون بعد از قفل شدن دیگه در دسترس نیست) موقتاً آپلود کن و باهاش هش پسورد بساز
-۲. `frontend_auth_helper/show_path.php` رو (قبل از فعال کردن قفل) داخل `frontend/` آپلود کن تا مسیر کامل سرور رو بگیری
-۳. از `frontend/.htaccess.example` یه کپی بگیر به اسم `.htaccess`، مسیر `AuthUserFile` رو با مسیر واقعی پر کن
-۴. یه فایل `.htpasswd` توی `frontend/` بساز، خروجی مرحله‌ی ۱ رو (کامل، یه خط) توش بذار
-۵. هر دو فایل کمکی (`generate_hash.php`, `show_path.php`) رو از روی هاست پاک کن
+### 2) Agentها
 
-## 🧪 تست ingest.php (قبل از راه‌اندازی Agent واقعی)
+راهنمای کامل هر سه Agent داخل [`agent/README.md`](../agent/README.md) هست.
+
+### 3) Frontend
+
+1. پوشه‌ی `frontend/` را کنار `backend/` آپلود کن
+2. اگر مسیرها فرق دارد، `frontend/config.js` را اصلاح کن
+3. داشبورد را باز کن
+
+### Optional: password protection
+
+اگر خواستی داشبورد را با پسورد ببندی:
+
+1. از `frontend_auth_helper/generate_hash.php` برای ساخت hash استفاده کن
+2. `show_path.php` را موقتاً برای گرفتن مسیر واقعی سرور آپلود کن
+3. `.htaccess` و `.htpasswd` را تنظیم کن
+4. فایل‌های کمکی را بعدش حذف کن
+
+## Test `ingest.php`
 
 **PowerShell:**
+
 ```powershell
 $body = @{
-    api_key = "کلید-api-ت"
+    api_key = "your-api-key"
     device_key = "mikrotik-main"
     display_name = "MikroTik hEX"
     device_type = "mikrotik"
@@ -118,27 +109,34 @@ $body = @{
 Invoke-RestMethod -Uri "https://yourdomain.com/dashboard/backend/ingest.php" -Method Post -Body $body -ContentType "application/json"
 ```
 
-جواب موفق: `{"success": true, "device_id": 1}`
+Expected response:
 
-## 🔒 امنیت — قبل از push کردن حتماً بخون
+```json
+{"success": true, "device_id": 1}
+```
 
-این ریپازیتوری با `.gitignore` طوری تنظیم شده که فایل‌های حاوی اطلاعات حساس (کلید API واقعی، پسورد MikroTik/Cisco/iLO، فایل `.htpasswd`) هیچ‌وقت commit نشن. فقط نسخه‌ی `*.example.*` هرکدوم توی ریپو هست. **قبل از push، حتماً چک کن:**
+## Security
+
+فایل‌های حساس داخل git نمی‌آیند. قبل از push این‌ها را چک کن:
 
 ```bash
 git status
 ```
 
-و مطمئن شو هیچ‌کدوم از این‌ها توی لیست فایل‌های commit‌شونده نیستن:
-- `backend/config.php`
-- `agent/config.json`, `agent/cisco_config.json`, `agent/hpe_config.json`
-- `frontend/.htaccess`, `frontend/.htpasswd`
-- `backend/database.sqlite`
+نباید staged شده باشند:
 
-## 🛠️ ساخته‌شده با
+* `backend/config.php`
+* `agent/config.json`
+* `agent/cisco_config.json`
+* `agent/hpe_config.json`
+* `frontend/.htaccess`
+* `frontend/.htpasswd`
+* `backend/database.sqlite`
 
-PHP · SQLite · Python (`routeros_api`, `pysnmp`, `requests`) · Chart.js · Vazirmatn & JetBrains Mono
+## Built with
 
+PHP · SQLite · Python (`routeros_api`, `pysnmp`, `requests`) · Chart.js
 
-## 📄 لایسنس
+## License
 
-MIT — با رعایت، برای پروژه‌ی شخصی خودت هرجور می‌خوای استفاده کن.
+MIT — برای استفاده‌ی شخصی آزاد است، با attribution.
