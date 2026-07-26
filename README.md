@@ -94,7 +94,7 @@ homelab-dashboard/
 
 ### 2. Agents
 
-The setup for MikroTik, Cisco, and HPE is documented in [`agent/agent-README-en.md`](./agent/README.md).
+The setup for MikroTik, Cisco, and HPE is documented in [`agent/README.md`](./agent/README.md).
 
 That guide covers the usual stuff:
 
