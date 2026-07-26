@@ -2,112 +2,128 @@
 
 # Homelab Monitoring Dashboard 🖥️📡
 
-A network and server monitoring dashboard for homelabs — built to run on **shared PHP hosting** (no VPS or root access required), monitoring **MikroTik**, **Cisco**, and **HPE** servers all in one place.
+This is a simple monitoring dashboard I put together for my homelab. It runs on **shared PHP hosting** — so no VPS, no root access, and no extra infrastructure headaches. The idea was to keep everything lightweight, but still useful enough to track **MikroTik**, **Cisco**, and **HPE** devices from one place.
 
-> Built by [Rahideh](https://trustit.ir) for a personal homelab project — with help from [Claude](https://claude.ai) (Anthropic's AI assistant) throughout coding, and testing 🤖
+I built it for my own setup first, and then cleaned it up enough to be usable as a real project. The agents collect the data inside the homelab and push it to the server, so the dashboard can stay on cheap shared hosting and still show live status, history, and alerts.
 
 ---
 
-## ✨ Features
+## What it includes
 
-- 📊 Live web dashboard with per-device status cards (online/offline, CPU, temperature, traffic)
-- 📈 CPU/temperature/traffic history charts for each device (click any card)
-- 🔔 Automatic alert log (offline, back online, high temperature)
-- 🌡️ Configurable temperature warning threshold per device
-- 🔌 Push-based architecture — works even though shared hosting can't reach your homelab's internal network
-- 🐍 Separate Python agents per device type:
-  - **MikroTik** via the RouterOS API
-  - **Cisco** via SNMP
-  - **HPE** via the Redfish API (iLO)
-- 🔒 Dashboard protected with HTTP Basic Auth (no separate login system needed)
-- 🎨 Dark terminal-style UI, Vazirmatn + JetBrains Mono fonts, RTL-ready
+* Live status cards for each device
+* CPU, temperature, and traffic history charts
+* Alert log for offline / online / over-temperature events
+* Per-device temperature warning thresholds
+* Push-based design that works behind NAT
+* Separate Python agents for:
 
-## 📸 Preview
+  * **MikroTik** via the RouterOS API
+  * **Cisco** via SNMP
+  * **HPE** via the Redfish API (iLO)
+* HTTP Basic Auth protection for the dashboard
+* Dark terminal-style UI with Vazirmatn and JetBrains Mono
 
+## Preview
 
 ![homelab-dashboard](screenshots/dashboard.png)
 
+## How it works
 
-## 🏗️ Architecture
+Shared hosting cannot reach devices inside a private network, so the whole thing is set up as a **push-based** flow:
 
-Since shared hosting can't reach your homelab's internal network (behind NAT), this project uses a **push-based** architecture:
-
-```
+```text
 [MikroTik]  ─┐
-[Cisco]      ├─→  Python agents (running on an always-on device in your homelab)
-[HPE/iLO]   ─┘         │
-                        │  Periodic POST (every 1-5 min, via Task Scheduler)
-                        ▼
-              backend/ingest.php  (on shared hosting, PHP + SQLite)
-                        │
-                        ▼
-              backend/api_*.php  ←── frontend/ (web dashboard)
+[Cisco]      ├─→  Python agents running on an always-on device in the homelab
+[HPE/iLO]   ─┘
+                     │
+                     │  periodic POST requests (every 1–5 minutes via Task Scheduler)
+                     ▼
+            backend/ingest.php  (shared hosting, PHP + SQLite)
+                     │
+                     ▼
+            backend/api_*.php  ←── frontend/ (web dashboard)
 ```
 
-## 📁 Project structure
+## Project structure
 
-```
+```text
 homelab-dashboard/
 ├── backend/              # PHP APIs + SQLite database
 │   ├── config.example.php
 │   ├── db_init.php
 │   ├── ingest.php        # receives data from agents
 │   ├── api_devices.php   # current device status
-│   ├── api_history.php   # history (for charts)
+│   ├── api_history.php   # history data for charts
 │   └── api_alerts.php    # alert log
-├── agent/                # Python data-collection scripts
+├── agent/                # Python collection scripts
 │   ├── common.py
 │   ├── mikrotik_agent.py + config.example.json
 │   ├── cisco_agent.py    + cisco_config.example.json
 │   ├── hpe_agent.py      + hpe_config.example.json
 │   ├── requirements.txt
-│   └── agent-README-en.md         # full setup guide for each agent
+│   └── agent-README-en.md
 ├── frontend/             # web dashboard
 │   ├── index.html
 │   ├── style.css
 │   ├── script.js
 │   ├── config.js
-│   └── .htaccess.example # password protection (optional)
-├── screenshots/           # web dashboard Preview
-│   ├── dashboard.png
-├── frontend_auth_helper/  # temporary tools for setting the dashboard password
+│   └── .htaccess.example
+├── screenshots/
+│   └── dashboard.png
+├── frontend_auth_helper/ # temporary helper tools for setting up password protection
 ├── Translation/
-│   ├── agent-README-fa.md # Persian version of agent-README-en
-│   └── README-fa.md       # Persian version of this README
+│   ├── agent-README-fa.md
+│   └── README-fa.md
 └── .gitignore
 ```
 
-## 🚀 Deployment guide (shared hosting)
+## Deployment
 
 ### Requirements
-- Shared hosting with PHP 7.4+ and SQLite support (`pdo_sqlite`)
-- An always-on device in your homelab (even a Windows PC that's usually on works) to run the agents
-- Python 3.9+ on that same device, for the agents
 
-### Phase 1: Backend
-1. Upload the `backend/` folder (e.g. to `public_html/dashboard/backend`)
-2. Copy `config.example.php` to `config.php` and set the API key to a long random string
-3. Run `db_init.php` once from your browser, then delete or rename it
-4. Send a test request to `ingest.php` with curl/Postman/PowerShell (examples below)
+* Shared hosting with PHP 7.4+ and SQLite support (`pdo_sqlite`)
+* An always-on device in your homelab to run the agents
+* Python 3.9+ on that device
 
-### Phases 2-4: Agents (MikroTik / Cisco / HPE)
-Full setup instructions for all three (installing Python, filling in config, enabling the API/SNMP/Redfish on the device itself, and scheduling with Windows Task Scheduler) are in [`agent/README.md`](./agent/README.md).
+### 1. Backend
 
-### Phase 5: Frontend
+1. Upload the `backend/` folder to your host, for example `public_html/dashboard/backend`
+2. Copy `config.example.php` to `config.php` and set a long random API key
+3. Open `db_init.php` once in your browser to create the database, then remove or rename it
+4. Send a test request to `ingest.php` with curl, Postman, or PowerShell
+
+### 2. Agents
+
+The setup for MikroTik, Cisco, and HPE is documented in [`agent/agent-README-en.md`](./agent/README.md).
+
+That guide covers the usual stuff:
+
+* installing Python
+* filling in the config files
+* enabling RouterOS API / SNMP / Redfish on the device itself
+* scheduling the scripts with Windows Task Scheduler
+
+### 3. Frontend
+
 1. Upload the `frontend/` folder next to `backend/`
-2. If your folder structure differs, update `frontend/config.js` with the correct path to `backend`
-3. Go to `https://yourdomain.com/dashboard/frontend/index.html`
+2. If your folder layout is different, update `frontend/config.js`
+3. Open the dashboard in your browser
 
-### (Optional but recommended) Password-protect the dashboard
-1. Temporarily upload `frontend_auth_helper/generate_hash.php` **outside of `frontend/`** (since it won't be reachable once the folder is locked) and use it to generate a password hash
-2. Before locking things down, upload `frontend_auth_helper/show_path.php` inside `frontend/` to get the server's full absolute path
-3. Copy `frontend/.htaccess.example` to `.htaccess` and fill in the real path for `AuthUserFile`
-4. Create a `.htpasswd` file in `frontend/` and paste in the single line the hash generator gave you
-5. Delete both helper files (`generate_hash.php`, `show_path.php`) from the host
+### Optional: password-protect the dashboard
 
-## 🧪 Testing ingest.php (before setting up a real agent)
+1. Temporarily upload `frontend_auth_helper/generate_hash.php` **outside** of `frontend/`
+2. Use it to generate a password hash
+3. Upload `frontend_auth_helper/show_path.php` inside `frontend/` to get the absolute path on the server
+4. Copy `frontend/.htaccess.example` to `.htaccess` and set the correct `AuthUserFile`
+5. Create a `.htpasswd` file in `frontend/` and paste the generated hash into it
+6. Remove the helper files when you are done
+
+## Testing `ingest.php`
+
+Before connecting a real agent, you can test the backend manually.
 
 **PowerShell:**
+
 ```powershell
 $body = @{
     api_key = "your-api-key"
@@ -122,27 +138,36 @@ $body = @{
 Invoke-RestMethod -Uri "https://yourdomain.com/dashboard/backend/ingest.php" -Method Post -Body $body -ContentType "application/json"
 ```
 
-Successful response: `{"success": true, "device_id": 1}`
+Expected response:
 
-## 🔒 Security — read this before you push
+```json
+{"success": true, "device_id": 1}
+```
 
-This repo's `.gitignore` is set up so that files containing real secrets (your actual API key, MikroTik/Cisco/iLO passwords, the `.htpasswd` file) never get committed. Only the `*.example.*` version of each is tracked. **Before pushing, always check:**
+## Security notes
+
+This repo’s `.gitignore` is set up so real secrets stay out of git. Only the `*.example.*` files are tracked.
+
+Before pushing anything, run:
 
 ```bash
 git status
 ```
 
-and make sure none of these show up as staged:
-- `backend/config.php`
-- `agent/config.json`, `agent/cisco_config.json`, `agent/hpe_config.json`
-- `frontend/.htaccess`, `frontend/.htpasswd`
-- `backend/database.sqlite`
+and make sure these files are not staged:
 
-## 🛠️ Built with
+* `backend/config.php`
+* `agent/config.json`
+* `agent/cisco_config.json`
+* `agent/hpe_config.json`
+* `frontend/.htaccess`
+* `frontend/.htpasswd`
+* `backend/database.sqlite`
 
-PHP · SQLite · Python (`routeros_api`, `pysnmp`, `requests`) · Chart.js · Vazirmatn & JetBrains Mono
+## Built with
 
+PHP · SQLite · Python (`routeros_api`, `pysnmp`, `requests`) · Chart.js · Vazirmatn · JetBrains Mono
 
-## 📄 License
+## License
 
-MIT — use it however you like for your own projects, with attribution.
+MIT — use it however you want in your own projects, with attribution.
